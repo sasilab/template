@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Blog | Andrilium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap + Theme CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/magnific-popup.css" rel="stylesheet">
+    <link href="css/templatemo-first-portfolio-style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- NAVBAR (same as index) -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a href="index.html" class="navbar-brand mx-auto mx-lg-0">Andrilium</a>
+            <div class="d-flex align-items-center d-lg-none">
+                <i class="navbar-icon bi-telephone-plus me-3"></i>
+                <a class="custom-btn btn" href="index.html#section_5">120-240-9600</a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-lg-5">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="projects.html" id="nav-projects">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="blog.html" id="nav-blog">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#section_5">Contact</a>
+                    </li>
+                </ul>
+                <div class="d-lg-flex align-items-center d-none ms-auto">
+                    <i class="navbar-icon bi-file-earmark-arrow-down-fill me-3"></i>
+                    <a class="custom-btn btn" href="documents/Sasikumar_Krishnan_Resume.pdf" download>
+                        Download Resume
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION: Match index.html style -->
+    <section class="hero d-flex justify-content-center align-items-center" style="background-color:#535da1; position:relative;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto text-center">
+                    <h1 class="text-white mb-4">Blog</h1>
+                    <p class="lead text-white-50">Checkout Interesting updates about AI based blogs here</p>
+                </div>
+            </div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#535da1" fill-opacity="1" d="M0,160L24,160C48,160,96,160,144,138.7C192,117,240,75,288,64C336,53,384,75,432,106.7C480,139,528,181,576,208C624,235,672,245,720,240C768,235,816,213,864,186.7C912,160,960,128,1008,133.3C1056,139,1104,181,1152,202.7C1200,224,1248,224,1296,197.3C1344,171,1392,117,1416,90.7L1440,64L1440,0L1416,0C1392,0,1344,0,1296,0C1248,0,1200,0,1152,0C1104,0,1056,0,1008,0C960,0,912,0,864,0C816,0,768,0,720,0C672,0,624,0,576,0C528,0,480,0,432,0C384,0,336,0,288,0C240,0,192,0,144,0C96,0,48,0,24,0L0,0Z"></path></svg>
+    </section>
+
+    <main class="section-padding">
+        <div class="container">
+            <!-- Filter/Sort Bar -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <select id="themeFilter" class="form-select">
+                        <option value="">All Themes</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select id="sortOrder" class="form-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Blog Cards -->
+            <div class="row" id="blogCards"></div>
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination"></ul>
+            </nav>
+        </div>
+    </main>
+
+    <!-- FOOTER (copy from index.html) -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-12">
+                    <div class="copyright-text-wrap">
+                        <p class="mb-0">
+                            <span class="copyright-text">Copyright © 2025 <a href="#">sasi portfolio</a>  All rights reserved.</span>
+                            Design: 
+                            <a rel="sponsored" href="https://templatemo.com" target="_blank">TemplateMo</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT FILES -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/blogs.js"></script>
+    <script>
+        // (Same blog JS logic as before)
+        const PAGE_SIZE = 6;
+        let currentPage = 1;
+        let currentTheme = "";
+        let currentSort = "newest";
+        function getFilteredBlogs() {
+            let filtered = blogs;
+            if (currentTheme) {
+                filtered = filtered.filter(b => b.tags.includes(currentTheme));
+            }
+            if (currentSort === "newest") {
+                filtered = filtered.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else {
+                filtered = filtered.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+            return filtered;
+        }
+        function renderBlogCards() {
+            const filtered = getFilteredBlogs();
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const pageBlogs = filtered.slice(start, start + PAGE_SIZE);
+            $("#blogCards").html(
+                pageBlogs.map(blog => `
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        <a href="${blog.url}" target="_blank" class="text-decoration-none">
+                            <img src="${blog.image}" class="card-img-top" alt="${blog.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${blog.title}</h5>
+                                <p class="card-text">${blog.summary}</p>
+                                <div>
+                                    ${blog.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join("")}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                `).join("")
+            );
+            renderPagination(filtered.length);
+        }
+        function renderPagination(totalBlogs) {
+            const pageCount = Math.ceil(totalBlogs / PAGE_SIZE);
+            let html = '';
+            for (let i = 1; i <= pageCount; i++) {
+                html += `<li class="page-item${i === currentPage ? ' active' : ''}">
+                            <a class="page-link" href="#">${i}</a>
+                        </li>`;
+            }
+            $("#pagination").html(html);
+            $(".page-link").off().on("click", function (e) {
+                e.preventDefault();
+                const pageNum = Number($(this).text());
+                if (!isNaN(pageNum)) {
+                    currentPage = pageNum;
+                    renderBlogCards();
+                    window.scrollTo(0, 0);
+                }
+            });
+        }
+        function populateThemeFilter() {
+            const allTags = Array.from(new Set(blogs.flatMap(b => b.tags)));
+            $("#themeFilter").append(allTags.map(tag => `<option value="${tag}">${tag}</option>`).join(""));
+        }
+        $("#themeFilter").on("change", function () {
+            currentTheme = this.value;
+            currentPage = 1;
+            renderBlogCards();
+        });
+        $("#sortOrder").on("change", function () {
+            currentSort = this.value;
+            currentPage = 1;
+            renderBlogCards();
+        });
+        $(function () {
+            populateThemeFilter();
+            renderBlogCards();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Blog | Andrilium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap + Your Custom CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body>
+    <!-- NAVBAR (copy from your index.html for consistency) -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a href="index.html" class="navbar-brand mx-auto mx-lg-0">Andrilium</a>
+
+            <div class="d-flex align-items-center d-lg-none">
+                <i class="navbar-icon bi-telephone-plus me-3"></i>
+                <a class="custom-btn btn" href="#section_5">
+                    120-240-9600
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-lg-5">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="projects.html" id="nav-projects">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="blog.html" id="nav-blog">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link click-scroll" href="index.html#section_5">Contact</a>
+                    </li>
+                </ul>
+
+                <div class="d-lg-flex align-items-center d-none ms-auto">
+                    <i class="navbar-icon bi-telephone-plus me-3"></i>
+                    <a class="custom-btn btn" href="index.html#section_5">
+                        120-240-9600
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+
+    <header class="py-5 text-center" style="background-color:#535da1; color:white;">
+        <div class="container">
+            <h1 class="display-4">Blog</h1>
+            <p class="lead">Insights and tutorials on Computer Vision, LLMs, VLMs, and AI Automation</p>
+        </div>
+    </header>
+
+
+    <main class="container my-5">
+        <!-- Filter/Sort Bar -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <select id="themeFilter" class="form-select">
+                    <option value="">All Themes</option>
+                    <!-- options will be generated -->
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select id="sortOrder" class="form-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+        </div>
+        <!-- Blog Cards -->
+        <div class="row" id="blogCards"></div>
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
+    </main>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/blogs.js"></script>
+    <script>
+        // ----- BLOG LOGIC -----
+        const PAGE_SIZE = 6;
+        let currentPage = 1;
+        let currentTheme = "";
+        let currentSort = "newest";
+
+        function getFilteredBlogs() {
+            let filtered = blogs;
+            if (currentTheme) {
+                filtered = filtered.filter(b => b.tags.includes(currentTheme));
+            }
+            if (currentSort === "newest") {
+                filtered = filtered.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else {
+                filtered = filtered.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+            return filtered;
+        }
+
+        function renderBlogCards() {
+            const filtered = getFilteredBlogs();
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const pageBlogs = filtered.slice(start, start + PAGE_SIZE);
+
+            $("#blogCards").html(
+                pageBlogs.map(blog => `
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        <a href="${blog.url}" target="_blank" class="text-decoration-none">
+                            <img src="${blog.image}" class="card-img-top" alt="${blog.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${blog.title}</h5>
+                                <p class="card-text">${blog.summary}</p>
+                                <div>
+                                    ${blog.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join("")}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                `).join("")
+            );
+
+            renderPagination(filtered.length);
+        }
+
+        function renderPagination(totalBlogs) {
+            const pageCount = Math.ceil(totalBlogs / PAGE_SIZE);
+            let html = '';
+            for (let i = 1; i <= pageCount; i++) {
+                html += `<li class="page-item${i === currentPage ? ' active' : ''}">
+                            <a class="page-link" href="#">${i}</a>
+                        </li>`;
+            }
+            $("#pagination").html(html);
+
+            // Handle clicks
+            $(".page-link").off().on("click", function (e) {
+                e.preventDefault();
+                const pageNum = Number($(this).text());
+                if (!isNaN(pageNum)) {
+                    currentPage = pageNum;
+                    renderBlogCards();
+                    window.scrollTo(0, 0);
+                }
+            });
+        }
+
+        function populateThemeFilter() {
+            const allTags = Array.from(new Set(blogs.flatMap(b => b.tags)));
+            $("#themeFilter").append(allTags.map(tag => `<option value="${tag}">${tag}</option>`).join(""));
+        }
+
+        // Handlers
+        $("#themeFilter").on("change", function () {
+            currentTheme = this.value;
+            currentPage = 1;
+            renderBlogCards();
+        });
+        $("#sortOrder").on("change", function () {
+            currentSort = this.value;
+            currentPage = 1;
+            renderBlogCards();
+        });
+
+        // Init
+        $(function () {
+            populateThemeFilter();
+            renderBlogCards();
+        });
+    </script>
+    <script>
+    // Highlight the current page in navbar
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.pathname.includes("blog.html")) {
+            document.getElementById('nav-blog').classList.add('active');
+        }
+        if (window.location.pathname.includes("projects.html")) {
+            document.getElementById('nav-projects').classList.add('active');
+        }
+    });
+    </script>
+
+</body>
+</html>
